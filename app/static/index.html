@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTM Automated Workflow Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo">
+                <h1>GTM Automated Workflow Engine</h1>
+            </div>
+            <p class="subtitle">Scrape. Enrich. Analyze. Outreach. All Automated.</p>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="app-main-grid">
+            
+            <!-- LEFT COLUMN: CONTROLS -->
+            <section class="grid-column">
+                
+                <!-- COMPANY DIRECTORY CARD (Section 1) -->
+                <div class="glass-card scroll-container" id="companies-card">
+                    <h2 class="card-title">1. Setup Directory &amp; Templates</h2>
+                    <div class="tabs-header">
+                        <button class="tab-btn active" id="tab-btn-companies" onclick="switchDirectoryTab('companies-directory-tab')">Companies</button>
+                        <button class="tab-btn" id="tab-btn-sequences" onclick="switchDirectoryTab('sequences-templates-tab')">Sequences</button>
+                    </div>
+                    
+                    <!-- Tab Content: Companies Directory -->
+                    <div class="directory-tab-content active" id="companies-directory-tab">
+                        <!-- Create Company Form -->
+                        <form id="create-company-form" class="form-group">
+                            <div class="input-row">
+                                <input type="text" id="company-name" placeholder="Company Name (e.g. Stripe)" required>
+                                <input type="text" id="company-domain" placeholder="Domain (e.g. stripe.com)" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Add Company</button>
+                        </form>
+                        <!-- Companies List -->
+                        <div class="company-list-wrapper" style="margin-top: 1rem;">
+                            <h3 style="margin-bottom: 0.5rem;">Registered Companies</h3>
+                            <div id="company-list" class="list-container" style="max-height: 150px;">
+                                <div class="empty-state">No companies registered yet.</div>
+                            </div>
+                        </div>
+
+                        <!-- Selected Company Sources Manager -->
+                        <div id="company-sources-section" style="display: none; margin-top: 1.5rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem;">
+                            <h3 style="margin-bottom: 0.5rem;">Saved Crawl Sources for <span id="source-company-name" style="color: var(--accent-color);"></span></h3>
+                            <form id="add-source-form" class="form-group" style="margin-top: 0.5rem; margin-bottom: 0.75rem;">
+                                <div class="url-input-row">
+                                    <input type="url" id="source-url" placeholder="https://stripe.com/about" required>
+                                    <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                                </div>
+                            </form>
+                            <div id="saved-sources-list" class="list-container" style="max-height: 120px;">
+                                <div class="empty-state">No custom sources saved yet.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Sequence Templates -->
+                    <div class="directory-tab-content" id="sequences-templates-tab" style="display: none;">
+                        <form id="create-sequence-form" class="form-group" style="gap: 0.75rem;">
+                            <div class="input-row" style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="sequence-name" placeholder="Sequence Name (e.g. Cold Outreach)" required style="flex: 1;">
+                                <input type="text" id="sequence-objective" placeholder="Default Objective" required style="flex: 1;">
+                            </div>
+                            <textarea id="sequence-desc" rows="1" placeholder="Optional sequence description..."></textarea>
+                            
+                            <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.5rem; margin-top: 0.25rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <h4 style="margin: 0; font-size: 0.85rem; color: var(--text-primary);">Steps Configuration</h4>
+                                    <button type="button" class="btn-secondary" onclick="addFormStepRow()" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">+ Add Step</button>
+                                </div>
+                                <div id="sequence-form-steps-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <div class="sequence-form-step-row" style="display: flex; gap: 0.4rem; align-items: center; background: rgba(255,255,255,0.02); padding: 0.4rem; border-radius: 6px;">
+                                        <span class="step-num-label" style="font-size: 0.75rem; font-weight: 600; min-width: 45px;">Step 1:</span>
+                                        <input type="number" class="step-delay" placeholder="Days" value="0" min="0" style="width: 55px; padding: 0.25rem;" required>
+                                        <input type="text" class="step-prompt" placeholder="Prompt template guidelines..." style="flex: 1; padding: 0.25rem;" required value="Write the initial personalized cold outreach email. Reference a specific pain point.">
+                                        <button type="button" class="btn-remove-url" onclick="this.parentElement.remove(); reindexFormSteps();" style="padding: 0; font-size: 1.1rem; min-width: 20px;">×</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary" style="margin-top: 0.25rem;">Create Sequence</button>
+                        </form>
+                        <div class="sequence-list-wrapper" style="margin-top: 1rem;">
+                            <h3 style="margin-bottom: 0.5rem;">Active Sequences</h3>
+                            <div id="sequence-list" class="list-container" style="max-height: 150px;">
+                                <div class="empty-state">No sequences created yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PIPELINE CONFIGURATION CARD (Section 2) -->
+                <div class="glass-card scroll-container" id="pipeline-card">
+                    <h2 class="card-title">2. Pipeline Run Configuration</h2>
+                    
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label for="pipeline-company-select">Target Company</label>
+                        <select id="pipeline-company-select" required>
+                            <option value="">-- Select Company --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="outreach-objective">Outreach Objective</label>
+                        <textarea id="outreach-objective" rows="2" placeholder="e.g., Introduce our automated GTM solutions and request a 10-minute demo."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pipeline-connector">Scraping Provider</label>
+                        <select id="pipeline-connector">
+                            <option value="jina">Jina AI Reader API (Markdown)</option>
+                            <option value="website">Direct Website Parser (HTML)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pipeline-sequence-select">Outreach Sequence (Optional)</label>
+                        <select id="pipeline-sequence-select">
+                            <option value="">-- No Sequence (One-Shot Outreach) --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pipeline-contact-email">Recipient Contact Email</label>
+                        <input type="email" id="pipeline-contact-email" placeholder="e.g. ceo@acme.com (auto-resolved from scrape if blank)">
+                    </div>
+
+                    <!-- Additional URLs Section -->
+                    <div class="form-group">
+                        <label>Additional Scrape Sources (LinkedIn, Blogs, News Articles)</label>
+                        <div id="additional-urls-list">
+                            <div class="url-input-row">
+                                <input type="url" class="additional-url" placeholder="https://stripe.com/blog/example-post">
+                                <button type="button" class="btn-remove-url" onclick="removeUrlRow(this)">×</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="addUrlRow()">+ Add URL</button>
+                    </div>
+
+                    <!-- Action Checkboxes -->
+                    <div class="checkbox-group" style="margin-top: 0.75rem; margin-bottom: 1.25rem;">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="pipeline-draft-only" checked>
+                            <span>Draft Only (Do not send email via SMTP yet)</span>
+                        </label>
+                    </div>
+
+                    <button id="btn-run-pipeline" class="btn-primary btn-glow">Run Workflow Engine</button>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: RESULTS -->
+            <section class="grid-column">
+                
+                <!-- PIPELINE STATUS / AUDIT TRAILS -->
+                <div class="glass-card" id="status-card">
+                    <h2 class="card-title">3. Pipeline Status & Live Logs</h2>
+                    <div class="status-indicator">
+                        <span class="status-badge status-idle" id="pipeline-status-badge">Idle</span>
+                        <div class="loader-ring" id="pipeline-loader"></div>
+                    </div>
+                    
+                    <div id="audit-log-container" class="log-display">
+                        <div class="log-line system-log">Waiting for pipeline trigger...</div>
+                    </div>
+                </div>
+
+                <!-- OUTREACH & ANALYSIS RESULTS -->
+                <div class="glass-card" id="results-card">
+                    <h2 class="card-title">4. Outreach &amp; Analysis Results</h2>
+                    <div class="tabs-header">
+                        <button class="tab-btn active" onclick="switchTab('email-tab')">Outreach Draft</button>
+                        <button class="tab-btn" onclick="switchTab('profile-tab')">Company Insights</button>
+                        <button class="tab-btn" onclick="switchTab('sequence-tab')">Sequence Timeline</button>
+                    </div>
+
+                    <!-- Tab: Email Outreach -->
+                    <div class="tab-content active" id="email-tab">
+                        <div class="form-group">
+                            <label for="result-email-subject">Email Subject</label>
+                            <input type="text" id="result-email-subject">
+                        </div>
+                        <div class="form-group">
+                            <label for="result-email-body">Email Body</label>
+                            <textarea id="result-email-body" rows="10"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="result-email-cta">CTA (Call to Action)</label>
+                            <input type="text" id="result-email-cta">
+                        </div>
+                        <div class="action-buttons-row">
+                            <button id="btn-copy-email" class="btn-secondary">Copy to Clipboard</button>
+                            <button id="btn-send-email" class="btn-primary">Send via Gmail</button>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Company Insights -->
+                    <div class="tab-content" id="profile-tab">
+                        <div class="insight-block">
+                            <h3>Company Summary</h3>
+                            <p id="result-summary" class="insight-text">Run enrichment to view insights.</p>
+                        </div>
+                        <div class="insight-block">
+                            <h3>Likely Pain Points</h3>
+                            <ul id="result-pain-points" class="insight-list"></ul>
+                        </div>
+                        <div class="insight-block">
+                            <h3>Buying Signals</h3>
+                            <ul id="result-buying-signals" class="insight-list"></ul>
+                        </div>
+                        <div class="insight-block">
+                            <h3>Outreach Context Guide</h3>
+                            <p id="result-outreach-context" class="insight-text"></p>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Sequence Timeline -->
+                    <div class="tab-content" id="sequence-tab">
+                        <div class="sequence-status-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px dashed rgba(255,255,255,0.1);">
+                            <div>
+                                <h3 style="margin-bottom: 0.25rem;">Enrollment Status: <span id="enrollment-status-badge" class="status-badge" style="background: rgba(255,255,255,0.05); font-size: 0.85rem; padding: 0.2rem 0.5rem;">Not Enrolled</span></h3>
+                                <small style="color: var(--text-secondary);">Contact: <span id="enrollment-contact-email">-</span></small>
+                            </div>
+                            <div class="enrollment-actions-row" style="display: flex; gap: 0.5rem;">
+                                <button id="btn-pause-enrollment" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: none;">Pause</button>
+                                <button id="btn-resume-enrollment" class="btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: none; background: var(--success-color);">Resume</button>
+                                <button id="btn-cancel-enrollment" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; display: none; color: var(--error-color); border-color: rgba(239, 68, 68, 0.2);">Cancel</button>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-wrapper">
+                            <div id="sequence-timeline-container" class="timeline-flow">
+                                <div class="empty-state">Select a company to view their sequence status.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER: ANALYTICS -->
+        <footer class="app-footer">
+            <div class="analytics-bar">
+                <div class="metric-card">
+                    <span class="metric-val" id="metric-processed">0</span>
+                    <span class="metric-lbl">Processed Companies</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-val text-success" id="metric-success">0</span>
+                    <span class="metric-lbl">Successful Runs</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-val text-error" id="metric-failed">0</span>
+                    <span class="metric-lbl">Failed Runs</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-val text-accent" id="metric-emails">0</span>
+                    <span class="metric-lbl">Emails Generated</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-val" id="metric-latency">0.0s</span>
+                    <span class="metric-lbl">Avg Latency</span>
+                </div>
+            </div>
+            <p class="copyright">&copy; 2026 GTM Automated Workflow Engine • Production Ready</p>
+        </footer>
+    </div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>
