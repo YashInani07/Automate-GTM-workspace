@@ -250,7 +250,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .company-item, .sequence-item {
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
     display: flex;
@@ -267,7 +267,7 @@ input:focus, select:focus, textarea:focus {
     border-radius: 8px;
     background: #fafafa;
     border: 1px solid rgba(0, 0, 0, 0.08);
-    padding: 4px;
+    padding: 0;
 }
 
 
@@ -278,6 +278,19 @@ input:focus, select:focus, textarea:focus {
 .company-item.selected, .sequence-item.selected {
     background: rgba(0, 0, 0, 0.04);
     border-color: rgba(0, 0, 0, 0.2);
+}
+
+.source-item {
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    height: 36px;
+    box-sizing: border-box;
+    margin-bottom: 4px;
 }
 
 .company-item-details {

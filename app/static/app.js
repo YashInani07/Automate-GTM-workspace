@@ -97,9 +97,6 @@ async function fetchCompanies() {
                         <small style="color: var(--text-secondary); display: block; font-size: 11px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;">${company.domain}</small>
                     </div>
                 </div>
-                <span class="status-badge" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid ${brand.color}33; color: ${brand.color}; background: ${brand.color}0a; font-weight: 600; text-transform: uppercase;">
-                    ${company.industry || 'Pending'}
-                </span>
             `;
             listContainer.appendChild(item);
             
@@ -536,11 +533,11 @@ async function fetchCompanySources(companyId) {
         
         sources.forEach(src => {
             const item = document.createElement("div");
-            item.className = "company-item";
+            item.className = "source-item";
             item.style.cursor = "default";
             item.innerHTML = `
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">
-                    <a href="${src.url}" target="_blank" style="color: var(--primary-color); font-size: 0.8rem; text-decoration: none;">${src.url}</a>
+                    <a href="${src.url}" target="_blank" style="color: #4f46e5; font-size: 0.8rem; text-decoration: none;">${src.url}</a>
                 </div>
                 <button type="button" class="btn-remove-url" onclick="deleteCompanySource(${src.id}, ${companyId})" style="padding: 0; font-size: 1.2rem;">×</button>
             `;
