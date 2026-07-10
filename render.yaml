@@ -1,23 +1,43 @@
+databases:
+  # 1. Managed PostgreSQL Database
+  - name: gtm-db
+    plan: free
+
 services:
-  # 1. FastAPI Web Service
+  # 2. Managed Redis (Declared inside services block)
+  - type: redis
+    name: gtm-redis
+    plan: free
+    ipAllowList: [] # Secures Redis internally inside Render's private network
+
+  # 3. FastAPI Web Service
   - type: web
     name: gtm-web
     env: docker
     dockerfilePath: Dockerfile
     dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
     plan: free # Update to "starter" or higher for production use
-    exposedPort: 8000
     envVars:
       - key: PROJECT_NAME
         value: "GTM Automated Workflow"
       - key: DATABASE_URL
-        value: postgresql+asyncpg://postgres:postgres@gtm-db:5432/postgres
+        fromDatabase:
+          name: gtm-db
+          property: connectionString
       - key: DATABASE_URL_SYNC
-        value: postgresql+psycopg2://postgres:postgres@gtm-db:5432/postgres
+        fromDatabase:
+          name: gtm-db
+          property: connectionString
       - key: CELERY_BROKER_URL
-        value: redis://gtm-redis:6379/0
+        fromService:
+          type: redis
+          name: gtm-redis
+          property: connectionString
       - key: CELERY_RESULT_BACKEND
-        value: redis://gtm-redis:6379/0
+        fromService:
+          type: redis
+          name: gtm-redis
+          property: connectionString
       - key: JINA_API_KEY
         sync: false # You will fill this in Render UI
       - key: GEMINI_API_KEY
@@ -39,7 +59,7 @@ services:
       - key: IMAP_PASSWORD
         sync: false
 
-  # 2. Celery Background Worker
+  # 4. Celery Background Worker
   - type: worker
     name: gtm-worker
     env: docker
@@ -50,13 +70,23 @@ services:
       - key: PROJECT_NAME
         value: "GTM Automated Workflow"
       - key: DATABASE_URL
-        value: postgresql+asyncpg://postgres:postgres@gtm-db:5432/postgres
+        fromDatabase:
+          name: gtm-db
+          property: connectionString
       - key: DATABASE_URL_SYNC
-        value: postgresql+psycopg2://postgres:postgres@gtm-db:5432/postgres
+        fromDatabase:
+          name: gtm-db
+          property: connectionString
       - key: CELERY_BROKER_URL
-        value: redis://gtm-redis:6379/0
+        fromService:
+          type: redis
+          name: gtm-redis
+          property: connectionString
       - key: CELERY_RESULT_BACKEND
-        value: redis://gtm-redis:6379/0
+        fromService:
+          type: redis
+          name: gtm-redis
+          property: connectionString
       - key: JINA_API_KEY
         sync: false
       - key: GEMINI_API_KEY
@@ -78,7 +108,7 @@ services:
       - key: IMAP_PASSWORD
         sync: false
 
-  # 3. Celery Beat Scheduler
+  # 5. Celery Beat Scheduler
   - type: worker
     name: gtm-beat
     env: docker
@@ -87,24 +117,24 @@ services:
     plan: free
     envVars:
       - key: DATABASE_URL
-        value: postgresql+asyncpg://postgres:postgres@gtm-db:5432/postgres
+        fromDatabase:
+          name: gtm-db
+          property: connectionString
       - key: DATABASE_URL_SYNC
-        value: postgresql+psycopg2://postgres:postgres@gtm-db:5432/postgres
+        fromDatabase:
+          name: gtm-db
+          property: connectionString
       - key: CELERY_BROKER_URL
-        value: redis://gtm-redis:6379/0
+        fromService:
+          type: redis
+          name: gtm-redis
+          property: connectionString
       - key: CELERY_RESULT_BACKEND
-        value: redis://gtm-redis:6379/0
+        fromService:
+          type: redis
+          name: gtm-redis
+          property: connectionString
       - key: JINA_API_KEY
         sync: false
       - key: GEMINI_API_KEY
         sync: false
-
-# 4. Databases and Cache services
-databases:
-  - name: gtm-db
-    plan: free
-
-redis:
-  - name: gtm-redis
-    plan: free
-    ipAllowList: [] # Secures Redis internally inside Render's private network
