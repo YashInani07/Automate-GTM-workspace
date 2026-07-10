@@ -4,7 +4,7 @@ databases:
     plan: free
 
 services:
-  # 2. Managed Redis (Declared inside services block)
+  # 2. Managed Redis
   - type: redis
     name: gtm-redis
     plan: free
@@ -16,7 +16,7 @@ services:
     env: docker
     dockerfilePath: Dockerfile
     dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    plan: free # Update to "starter" or higher for production use
+    plan: free
     envVars:
       - key: PROJECT_NAME
         value: "GTM Automated Workflow"
@@ -39,9 +39,9 @@ services:
           name: gtm-redis
           property: connectionString
       - key: JINA_API_KEY
-        sync: false # You will fill this in Render UI
+        sync: false
       - key: GEMINI_API_KEY
-        sync: false # You will fill this in Render UI
+        sync: false
       - key: ZAPIER_WEBHOOK_URL
         sync: false
       - key: CRM_WEBHOOK_URL
@@ -58,6 +58,10 @@ services:
         sync: false
       - key: IMAP_PASSWORD
         sync: false
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: REPLY_POLL_INTERVAL_MINUTES
+        value: "5"
 
   # 4. Celery Background Worker
   - type: worker
@@ -107,6 +111,8 @@ services:
         sync: false
       - key: IMAP_PASSWORD
         sync: false
+      - key: LOG_LEVEL
+        value: "INFO"
 
   # 5. Celery Beat Scheduler
   - type: worker
@@ -138,3 +144,5 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: LOG_LEVEL
+        value: "INFO"

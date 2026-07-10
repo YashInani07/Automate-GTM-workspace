@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -15,6 +16,20 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     CELERY_BROKER_URL: str = "redis://redis:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://redis:6379/0"
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_db_url(cls, v: str) -> str:
+        if v and v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
+
+    @field_validator("DATABASE_URL_SYNC", mode="before")
+    @classmethod
+    def assemble_db_sync_url(cls, v: str) -> str:
+        if v and v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return v
     IMAP_HOST: str = "imap.gmail.com"
     IMAP_PORT: int = 993
     IMAP_USER: Optional[str] = ""
