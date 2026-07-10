@@ -1,5 +1,8 @@
 # GTM Automated Workflow Engine
 
+[![Deploy to Render](https://img.shields.io/badge/Deploy-Render-blue)](https://gtm-web-86hu.onrender.com)
+🚀 **Live URL:** [https://gtm-web-86hu.onrender.com](https://gtm-web-86hu.onrender.com)
+
 The GTM (Go-To-Market) Automated Workflow Engine is an intelligent, agent-driven platform designed to automate lead enrichment, company profile research, and highly personalized sales outreach. By combining web parsing, large language model analysis, and background automation queues, the engine enables growth and sales teams to scale high-quality outreach campaigns while maintaining the context-rich touch of a human researcher.
 
 ## Core Capabilities
