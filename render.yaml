@@ -14,7 +14,8 @@ services:
   - type: web
     name: gtm-web
     env: docker
-    dockerCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    preDeployCommand: alembic upgrade head
     plan: free
     envVars:
       - key: PROJECT_NAME
