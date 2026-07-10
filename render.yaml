@@ -1,0 +1,110 @@
+services:
+  # 1. FastAPI Web Service
+  - type: web
+    name: gtm-web
+    env: docker
+    dockerfilePath: Dockerfile
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    plan: free # Update to "starter" or higher for production use
+    exposedPort: 8000
+    envVars:
+      - key: PROJECT_NAME
+        value: "GTM Automated Workflow"
+      - key: DATABASE_URL
+        value: postgresql+asyncpg://postgres:postgres@gtm-db:5432/postgres
+      - key: DATABASE_URL_SYNC
+        value: postgresql+psycopg2://postgres:postgres@gtm-db:5432/postgres
+      - key: CELERY_BROKER_URL
+        value: redis://gtm-redis:6379/0
+      - key: CELERY_RESULT_BACKEND
+        value: redis://gtm-redis:6379/0
+      - key: JINA_API_KEY
+        sync: false # You will fill this in Render UI
+      - key: GEMINI_API_KEY
+        sync: false # You will fill this in Render UI
+      - key: ZAPIER_WEBHOOK_URL
+        sync: false
+      - key: CRM_WEBHOOK_URL
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: IMAP_HOST
+        value: "imap.gmail.com"
+      - key: IMAP_PORT
+        value: "993"
+      - key: IMAP_USER
+        sync: false
+      - key: IMAP_PASSWORD
+        sync: false
+
+  # 2. Celery Background Worker
+  - type: worker
+    name: gtm-worker
+    env: docker
+    dockerfilePath: Dockerfile
+    dockerCommand: celery -A app.worker.celery_app worker --loglevel=info
+    plan: free
+    envVars:
+      - key: PROJECT_NAME
+        value: "GTM Automated Workflow"
+      - key: DATABASE_URL
+        value: postgresql+asyncpg://postgres:postgres@gtm-db:5432/postgres
+      - key: DATABASE_URL_SYNC
+        value: postgresql+psycopg2://postgres:postgres@gtm-db:5432/postgres
+      - key: CELERY_BROKER_URL
+        value: redis://gtm-redis:6379/0
+      - key: CELERY_RESULT_BACKEND
+        value: redis://gtm-redis:6379/0
+      - key: JINA_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ZAPIER_WEBHOOK_URL
+        sync: false
+      - key: CRM_WEBHOOK_URL
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: IMAP_HOST
+        value: "imap.gmail.com"
+      - key: IMAP_PORT
+        value: "993"
+      - key: IMAP_USER
+        sync: false
+      - key: IMAP_PASSWORD
+        sync: false
+
+  # 3. Celery Beat Scheduler
+  - type: worker
+    name: gtm-beat
+    env: docker
+    dockerfilePath: Dockerfile
+    dockerCommand: celery -A app.worker.celery_app beat --loglevel=info
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql+asyncpg://postgres:postgres@gtm-db:5432/postgres
+      - key: DATABASE_URL_SYNC
+        value: postgresql+psycopg2://postgres:postgres@gtm-db:5432/postgres
+      - key: CELERY_BROKER_URL
+        value: redis://gtm-redis:6379/0
+      - key: CELERY_RESULT_BACKEND
+        value: redis://gtm-redis:6379/0
+      - key: JINA_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+# 4. Databases and Cache services
+databases:
+  - name: gtm-db
+    plan: free
+
+redis:
+  - name: gtm-redis
+    plan: free
+    ipAllowList: [] # Secures Redis internally inside Render's private network
