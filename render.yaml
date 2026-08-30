@@ -1,16 +1,11 @@
-databases:
-  # 1. Managed PostgreSQL Database
-  - name: gtm-db
-    plan: free
-
 services:
-  # 2. Managed Redis
+  # 1. Managed Redis
   - type: redis
     name: gtm-redis
     plan: free
     ipAllowList: [] # Secures Redis internally inside Render's private network
 
-  # 3. FastAPI Web Service
+  # 2. FastAPI Web Service
   - type: web
     name: gtm-web
     env: docker
@@ -19,13 +14,7 @@ services:
       - key: PROJECT_NAME
         value: "GTM Automated Workflow"
       - key: DATABASE_URL
-        fromDatabase:
-          name: gtm-db
-          property: connectionString
-      - key: DATABASE_URL_SYNC
-        fromDatabase:
-          name: gtm-db
-          property: connectionString
+        sync: false # Set to your Neon PostgreSQL connection string in Render dashboard
       - key: CELERY_BROKER_URL
         fromService:
           type: redis
@@ -60,5 +49,6 @@ services:
         value: "INFO"
       - key: REPLY_POLL_INTERVAL_MINUTES
         value: "5"
+
 
 
