@@ -1,12 +1,12 @@
 import os
 from typing import Optional
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "GTM Automated Workflow"
     DATABASE_URL: str
-    DATABASE_URL_SYNC: str
+    DATABASE_URL_SYNC: Optional[str] = None
     JINA_API_KEY: str
     GEMINI_API_KEY: str
     ZAPIER_WEBHOOK_URL: Optional[str] = ""
@@ -20,16 +20,42 @@ class Settings(BaseSettings):
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def assemble_db_url(cls, v: str) -> str:
-        if v and v.startswith("postgresql://"):
-            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif v.startswith("postgresql://"):
+                v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+            
+            # asyncpg requires 'ssl=' keyword argument instead of 'sslmode='
+            if "sslmode=" in v:
+                v = v.replace("sslmode=", "ssl=")
         return v
 
-    @field_validator("DATABASE_URL_SYNC", mode="before")
-    @classmethod
-    def assemble_db_sync_url(cls, v: str) -> str:
-        if v and v.startswith("postgresql://"):
-            return v.replace("postgresql://", "postgresql+psycopg2://", 1)
-        return v
+    @model_validator(mode="after")
+    def assemble_sync_db_url(self) -> "Settings":
+        if not self.DATABASE_URL_SYNC and self.DATABASE_URL:
+            url = self.DATABASE_URL
+            if url.startswith("postgresql+asyncpg://"):
+                url = url.replace("postgresql+asyncpg://", "postgresql+psycopg2://", 1)
+            elif url.startswith("postgres://"):
+                url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+            elif url.startswith("postgresql://"):
+                url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+            
+            if "ssl=" in url and "sslmode=" not in url:
+                url = url.replace("ssl=", "sslmode=")
+            self.DATABASE_URL_SYNC = url
+        elif self.DATABASE_URL_SYNC:
+            v = self.DATABASE_URL_SYNC
+            if v.startswith("postgres://"):
+                v = v.replace("postgres://", "postgresql+psycopg2://", 1)
+            elif v.startswith("postgresql://"):
+                v = v.replace("postgresql://", "postgresql+psycopg2://", 1)
+            if "ssl=" in v and "sslmode=" not in v:
+                v = v.replace("ssl=", "sslmode=")
+            self.DATABASE_URL_SYNC = v
+        return self
+
     IMAP_HOST: str = "imap.gmail.com"
     IMAP_PORT: int = 993
     IMAP_USER: Optional[str] = ""
@@ -43,3 +69,5 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+
+
